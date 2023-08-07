@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Admin My Lapak</title>
+        
+        <!-- Bootstrap and SBadmin CSS -->
+        <link href="css/styles.css" rel="stylesheet" />
+        
+        <!-- Fontawesome -->
+        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+        
+        <!-- Data Table -->
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    </head>
+    <body class="sb-nav-fixed">
+        <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+            <!-- Navbar Brand-->
+            <a class="navbar-brand ps-3" href="index.html">Admin My Lapak</a>
+            <!-- Sidebar Toggle-->
+            <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
+            <!-- Navbar-->
+            <ul class="navbar-nav ms-auto me-0 me-md-3">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="#" id="logout">Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        <div id="layoutSidenav">
+            <div id="layoutSidenav_nav">
+                <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+                    <div class="sb-sidenav-menu">
+                        <div class="nav">
+                            <div class="sb-sidenav-menu-heading">Core</div>
+                            <a class="nav-link" href="index.html">
+                                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                                Dashboard
+                            </a>
+                        </div>
+                    </div>
+                    <div class="sb-sidenav-footer">
+                        <div class="small">Logged in as:</div>
+                        <span id="admin-login-fullname"></span>
+                    </div>
+                </nav>
+            </div>
+            <div id="layoutSidenav_content">
+                <main>
+                    <div class="container-fluid px-4">
+                        <h1 class="mt-4">Add Lapak</h1>
+                        <hr>
+                        <br>
+                        <div class="card">
+                            <div class="card-body">
+                                <form >
+                                    <div class="mb-3">
+                                      <label for="image" class="form-label">Image Lapak :</label>
+                                      <input type="text" class="form-control" id="image">
+                                    </div>
+                                    <div class="mb-3">
+                                      <label for="title" class="form-label">Title Lapak :</label>
+                                      <input type="text" class="form-control" id="title">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="price" class="form-label">Price :</label>
+                                        <input type="text" class="form-control" id="price">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="shortdescription" class="form-label">Short Description :</label>
+                                        <input type="text" class="form-control" id="shortdescription">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label">Description Lapak :</label>
+                                        <textarea class="form-control" id="description"></textarea>
+                                    </div>
+                                    <button id="lapakadd" type="submit" class="btn btn-primary">Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                <footer class="py-4 bg-light mt-auto">
+                    <div class="container-fluid px-4">
+                        <div class="d-flex align-items-center justify-content-between small">
+                            <div class="text-muted">Copyright &copy; Your Website 2023</div>
+                            <div>
+                                <a href="#">Privacy Policy</a>
+                                &middot;
+                                <a href="#">Terms &amp; Conditions</a>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="js/scripts.js"></script>
+        <script src="https://code.jquery.com/jquery-3.7.0.js" integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM=" crossorigin="anonymous"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+        <script>
+            $(document).ready(function () {
+
+                // Get localstorage item //
+                var accessToken = localStorage.getItem('accessToken');
+                var refreshToken = localStorage.getItem('refreshToken');
+                var username = localStorage.getItem('username');
+                // console.log('accessToken: '+accessToken);
+                // console.log('refreshToken: '+refreshToken);
+                // console.log('username: '+username);
+
+                // Protect Page //
+                $.ajax({
+                    method: "GET",
+                    url: "http://localhost:8080/api/protected",
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    },
+                    success: function (response) {
+                        localStorage.setItem("fullname", response.fullname)
+                        // alert('Successfully Accessed')
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        try {
+                            var errorResponse = JSON.parse(jqXHR.responseText);
+                            if (errorResponse.hasOwnProperty('message')) {
+                                errorMessage = errorResponse.message;
+                                if (errorMessage == 'Token Invalid :Expired token'){
+                                    // console.log(errorMessage)
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "http://localhost:8080/api/refresh-token",
+                                        data: JSON.stringify({
+                                            "refresh_token" : refreshToken
+                                        }),
+                                        dataType: "JSON",
+                                        success: function (response) {
+                                            localStorage.setItem("accessToken", response.access_token);
+                                            alert("Session Expired Refreshing Token")
+                                            location.reload();
+                                        },
+                                        error: function (jqXHR, textStatus, errorThrown) {
+                                            console.log(jqXHR.responseText)
+                                        }
+                                    });
+                                }
+                                else {
+                                    alert('Error access');
+                                    location.href='http://localhost:3000/login.html'
+                                }
+                            }
+                        } catch (error) {
+                            alert('Error parsing JSON response:', error);
+                            location.href='http://localhost:3000/login.html'
+                        }
+                    }
+                });
+
+                // Admin Login Fullname //
+                var fullname = localStorage.getItem('fullname');
+                // console.log('fullname: '+fullname);
+                $("#admin-login-fullname").append(fullname);
+
+                // Logout Function //
+                $("#logout").click(function (event) { 
+                    event.preventDefault();
+                    
+                    $.ajax({
+                      url: "http://localhost:8080/api/logout", 
+                      method: "GET",
+                      headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                      },
+                      success: function(response) {
+                        // Redirect to the logout page or any other desired action
+                        // Clear JWT tokens from the client-side
+                        localStorage.removeItem("accessToken");
+                        localStorage.removeItem("refreshToken");
+                        localStorage.removeItem("username");
+                        localStorage.removeItem("fullname");
+                        alert(response.message)
+                        location.href ="http://localhost:3000/login.html"
+                      },
+                      error: function(jqXHR, textStatus, errorThrown) {
+                            // Error handling
+                            // console.log('Logout Error');
+                            alert('Logout Error');
+                            location.href ="http://localhost:3000/login.html"
+                      }
+                    });
+                });
+                
+                // Lapak Add //
+                $("#lapakadd").click(function (e) { 
+                    e.preventDefault();
+                    var img = $("#image").val()
+                    var title = $("#title").val()
+                    var price = $("#price").val()
+                    var shdesc = $("#shortdescription").val()
+                    var desc = $("#description").val()
+                    $.ajax({
+                        type: "POST",
+                        url: "http://localhost:8080/api/lapak",
+                        headers: {
+                                'Authorization': 'Bearer ' + accessToken
+                        },
+                        data: JSON.stringify({
+                            "img_lapak" : img,
+                            "title_lapak" : title,
+                            "price" : price,
+                            "short_description" : shdesc,
+                            "description_lapak" : desc,
+                        }),
+                        dataType: "JSON",
+                        success: function (response) {
+                            // console.log('success')
+                            alert(response.message)
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            if(jqXHR.status == '400'){
+                                var errorResponse = JSON.parse(jqXHR.responseText);
+                                var errorMessage = errorResponse.messages;
+                                var msg = []
+                                if(errorMessage.img_lapak){
+                                    msg.push(errorMessage.img_lapak)
+                                }
+                                if(errorMessage.title_lapak) {
+                                    msg.push(errorMessage.title_lapak)
+                                }
+                                if(errorMessage.price) {
+                                    msg.push(errorMessage.price)
+                                }
+                                if(errorMessage.short_description) {
+                                    msg.push(errorMessage.short_description)
+                                }
+                                if(errorMessage.description_lapak) {
+                                    msg.push(errorMessage.description_lapak)
+                                }
+                                alert('Add Error :'+msg)
+                            }
+                            else {
+                                alert('Add Error');
+                            }
+                        }
+                    });
+                });
+            });
+
+            
+        </script>
+    </body>
+</html>

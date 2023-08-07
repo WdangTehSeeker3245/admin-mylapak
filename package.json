@@ -1,0 +1,14 @@
+{
+  "name": "admin-mylapak",
+  "version": "1.0.0",
+  "description": "",
+  "main": "admin.js",
+  "scripts": {
+    "start": "node admin.js"
+  },
+  "author": "izaus",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
